@@ -1,0 +1,167 @@
+#include <iostream>
+using namespace std;
+
+struct CVECTOR {
+    int* vector;
+    int size;
+    int limite;
+    int* p = NULL;
+    int* q = NULL;
+    int* INI = NULL;
+    bool flag = false;
+    int* FIN = NULL;
+
+    CVECTOR(int size_inicial) {
+        size = size_inicial;
+        limite = size;
+        vector = new int[size];
+        INI = vector;
+        p = INI;
+        q = INI;
+        FIN = INI + size;
+    }
+
+    ~CVECTOR() {
+        delete[] vector;
+    }
+
+    void push_back(int valor) {
+        if (p < FIN) {
+            *p = valor;
+            p++;
+        }
+        else {
+            size = size * 2;
+            int* tmp = new int[size];
+            int* tmp_ = tmp;
+            for (int* i = INI; i < FIN; i++, tmp_++) {
+                *tmp_ = *i;
+            }
+            p = tmp_;
+            INI = tmp;
+            FIN = tmp + size;
+            *p = valor;
+            p++;
+            delete[] vector;
+            vector = INI;
+            q = vector;
+            tmp_ = NULL;
+            tmp = NULL;
+        }
+        flag = true;
+    }
+
+    void push_front(int valor) {
+        if (!flag) {
+            *q = valor;
+            p++;
+            flag = true;
+        }
+        else {
+            if (p >= FIN) {
+                size = size * 2;
+                int* tmp = new int[size];
+                int* tmp_ = tmp;
+                for (int* i = INI; i < FIN; i++, tmp_++) {
+                    *tmp_ = *i;
+                }
+                p = tmp_;
+                INI = tmp;
+                FIN = tmp + size;
+                delete[] vector;
+                vector = INI;
+                q = INI;
+                tmp_ = NULL;
+                tmp = NULL;
+            }
+            for (int* t = p - 1, *s = p; t != INI - 1; t--, s--) {
+                *s = *t;
+            }
+            *q = valor;
+            p++;
+        }
+    }
+    void pop_back(int &valor)
+    {
+        if (p == INI)
+        {
+            cout << "El vector está vacío" << endl;
+        }
+        else
+        {
+            p--;
+            valor = *p;
+        }
+    }
+    void pop_front(int& valor)
+    {
+        if (p == INI)
+        {
+            cout << "El vector está vacío" << endl;
+        }
+        else
+        {
+            valor = *q;
+            for (int* t = INI, *s = q + 1; s != p; t++, s++)
+            {
+                *t = *s;
+            }
+            p--;
+            
+        }
+    }
+    void print() {
+        cout << "CVECTOR: ";
+        for (int* i = vector; i < p; i++) {
+            cout << *i << " ";
+        }
+        cout << endl;
+        cout << "longitud: " << (p - vector) << endl;
+        cout << "Capacidad: " << size << endl;
+    }
+};
+
+int main() {
+    CVECTOR vec(3);
+
+    vec.push_back(1);
+    vec.push_back(2);
+    vec.push_back(3);
+    vec.push_back(2);
+    vec.push_back(3);
+    vec.push_front(1);
+    vec.push_front(2);
+    vec.push_front(3);
+    vec.push_front(4);
+    vec.push_front(5);
+    vec.push_front(6);
+    vec.push_front(7);
+    vec.push_front(8);
+    vec.print();
+
+    int valor_extraido;
+    vec.pop_back(valor_extraido);
+    cout << "valor extraido: " << valor_extraido << endl;
+    vec.print();
+
+    vec.push_front(4);
+    vec.push_front(5);
+    vec.push_back(3);
+    vec.push_back(2);
+    
+    vec.print();
+
+
+    vec.push_back(1);
+    vec.push_back(2);
+    vec.push_back(3);
+    vec.push_back(2);
+    vec.push_back(3);
+    vec.print();
+    int valor_extraido_1;
+    vec.pop_front(valor_extraido_1);
+    cout << "valor extraido: " << valor_extraido_1 << endl;
+    vec.print();
+
+    return 0;
+}
