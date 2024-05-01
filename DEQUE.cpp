@@ -1,6 +1,7 @@
 // Deque implementation in C++
 
 #include <iostream>
+#include <cassert>
 using namespace std;
 
 #define MAX 10
@@ -215,6 +216,49 @@ struct Deque {
 
     }
 
+    int& operator[](int valor)
+    {
+        int** pos = s + 1;
+        int ideal = ((t - s) + 1) * size_vector;
+        int left = ((((*s) + size_vector) - q) - 1);
+        int right = (((p - (*t - 1)) - 1));
+
+        if (t == s)
+        {
+            if (p == q)
+            {
+                assert(valor > 0);
+                return *p;
+            }
+            else
+            {
+                assert(valor > (((p - 1) - (q + 1)) + 1));
+                return *(q + 1 + (valor / size_vector));
+            }
+        }
+        else
+        {
+            if (valor < left)
+            {
+                return *(q + valor + 1);
+            }
+            else
+            {
+                valor = valor - left;
+                if (valor < (size_vector * (((t - s)) + 1 - ((((s + 2) - s)) - 1) - ((((t + 2) - t)) - 1))))
+                {
+                    pos = pos + (valor / 3);
+                    return *(*pos + (valor % 3));
+                }
+                else
+                {
+                    return *(*t + (valor % 3));
+                }
+            }
+        }
+    }
+    
+
     void print()
     {
         for (int** tmp = s; tmp != t + 1; tmp++)
@@ -241,31 +285,18 @@ int main() {
     dq.print();
     dq.push_front(3); dq.push_front(2); dq.push_front(1); dq.push_front(4); dq.push_front(7); dq.push_front(0); dq.push_front(3); dq.push_front(2); dq.push_front(1); dq.push_front(4); dq.push_front(7); dq.push_front(0);
     dq.print();
-    dq.push_back(7); dq.push_back(8); dq.push_back(9); dq.push_back(1); dq.push_back(0); 
+    dq[3] = 3;
+    dq[7] = 3;
+    dq[10] = 3;
+    dq[16] = 3;
     dq.print();
-    dq.pop_back(valor_extraido);
-    cout << "Valor extraido: " << valor_extraido << endl;
-    dq.pop_back(valor_extraido);
-    cout << "Valor extraido: " << valor_extraido << endl;
-    dq.pop_back(valor_extraido);
-    cout << "Valor extraido: " << valor_extraido << endl;
-    dq.pop_back(valor_extraido);
-    cout << "Valor extraido: " << valor_extraido << endl;
-    dq.print();
-    dq.pop_front(valor_extraido);
-    cout << "Valor extraido: " << valor_extraido << endl;
-    dq.pop_front(valor_extraido);
-    cout << "Valor extraido: " << valor_extraido << endl;
-    dq.pop_front(valor_extraido);
-    cout << "Valor extraido: " << valor_extraido << endl;
-    dq.pop_front(valor_extraido);
-    cout << "Valor extraido: " << valor_extraido << endl;
-    dq.print();
-    dq.push_front(3); dq.push_front(2); dq.push_front(1); dq.push_front(4); dq.push_front(7); dq.push_front(7);
-    dq.print();
-    dq.push_back(7); dq.push_back(8); dq.push_back(9); dq.push_back(1); dq.push_back(0);
-    dq.print();
-    dq.push_back(7); dq.push_back(8); dq.push_back(9); dq.push_back(1); dq.push_back(0); dq.push_back(0);
-    dq.print();
+    int valor = dq[6];
+    cout << valor;
+    valor = dq[1];
+    cout << valor;
+    valor = dq[0];
+    cout << valor;
+    valor = dq[17];
+    cout << valor;
     
 }
