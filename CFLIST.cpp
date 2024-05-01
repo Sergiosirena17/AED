@@ -36,7 +36,7 @@ public:
 };
 
 template <class T>
-void CFLIST<T>::push_front(T valor)
+void CFLIST<T>::push_back(T valor)
 {
     if (!head)
     {
@@ -50,7 +50,7 @@ void CFLIST<T>::push_front(T valor)
 }
 
 template <class T>
-void CFLIST<T>::push_back(T valor)
+void CFLIST<T>::push_front(T valor)
 {
     if (!head)
     {
@@ -63,7 +63,7 @@ void CFLIST<T>::push_back(T valor)
 }
 
 template <class T>
-void CFLIST<T>::pop_front(T &valor)
+void CFLIST<T>::pop_back(T &valor)
 {
     if (!head)
     {
@@ -88,7 +88,7 @@ void CFLIST<T>::pop_front(T &valor)
 }
 
 template <class T>
-void CFLIST<T>::pop_back(T& valor)
+void CFLIST<T>::pop_front(T& valor)
 {
     if (!head)
     {
