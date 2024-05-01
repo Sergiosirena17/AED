@@ -1,0 +1,281 @@
+#include <iostream>
+#include <cstdlib> // Para la función rand()
+#include <ctime>   // Para inicializar la semilla del generador de números aleatorios
+
+using namespace std;
+
+
+void llenarAleatoriamente(int* arr, int size)
+{
+    for (int i = 0; i < size; ++i) {
+        arr[i] = rand() % 100; // Llena cada elemento con un número aleatorio entre 0 y 99
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////ORDENAMIENTO NORMAL////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/*
+void ordenar(int* arr, int size)
+{
+    for (int i = 0; i < size - 1; ++i) {
+        for (int j = 0; j < size - i - 1; ++j) {
+            if (arr[j] > arr[j + 1]) {
+                // Intercambiar los elementos
+                int temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+            }
+        }
+    }
+}
+
+int main()
+{
+    const int size = 20;
+    int A[size];
+
+    // Inicializar la semilla del generador de números aleatorios
+    srand(time(nullptr));
+
+    llenarAleatoriamente(A, size);
+
+    for (int i = 0; i < size; ++i)
+    {
+        cout << A[i] << " ";
+    }
+    cout << endl;
+
+    ordenar(A, size);
+
+    for (int i = 0; i < size; ++i)
+    {
+        cout << A[i] << " ";
+    }
+
+    return 0;
+}
+
+
+*/
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////POLIMORFISMO////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+/*
+
+template<class T>
+class Comparador {
+public:
+    virtual bool comparar(T a, T b) = 0;
+};
+
+template<class T>
+class ComparadorAscendente : public Comparador<T> {
+public:
+    bool comparar(T a, T b) {
+        return a > b;
+    }
+};
+
+template<class T>
+class ComparadorDescendente : public Comparador<T> {
+public:
+    bool comparar(T a, T b) {
+        return a < b;
+    }
+};
+
+
+template<class C>
+void ordenar(int* arr, int size, C comparador)
+{
+    for (int i = 0; i < size - 1; ++i) {
+        for (int j = 0; j < size - i - 1; ++j) {
+            if (comparador.comparar(arr[j], arr[j + 1])) {
+                int temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+            }
+        }
+    }
+}
+
+int main()
+{
+    srand(time(nullptr));
+
+    const int size = 20;
+    int A[size];
+
+    llenarAleatoriamente(A, size);
+
+    for (int i = 0; i < size; ++i)
+    {
+        cout << A[i] << " ";
+    }
+    cout << endl;
+
+    ComparadorDescendente<int> comparadorDescendente;
+    ComparadorAscendente<int> comparadorAescendente;
+    ordenar(A, size, comparadorDescendente);
+
+    for (int i = 0; i < size; ++i)
+    {
+        cout << A[i] << " ";
+    }
+    cout << endl;
+    ordenar(A, size, comparadorAescendente);
+
+    for (int i = 0; i < size; ++i)
+    {
+        cout << A[i] << " ";
+    }
+
+
+
+    return 0;
+}
+
+
+
+*/
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////FUNCTORES////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/*
+template<class T>
+struct CLESS
+{
+    bool operator()(T a, T b)
+    {
+        return a < b;
+    }
+};
+
+template<class T>
+struct CGREATER
+{
+    bool operator()(T a, T b)
+    {
+        return a > b;
+    }
+};
+
+template<class C>
+void ordenar(int* arr, int size, C p)
+{
+    for (int i = 0; i < size - 1; ++i) {
+        for (int j = 0; j < size - i - 1; ++j) {
+            if (p(arr[j], arr[j + 1])) {  //if (p(arr[j],arr[j+1]))
+                int temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+            }
+        }
+    }
+}
+
+int main()
+{
+    srand(time(nullptr));
+
+
+
+    CLESS<int> l;
+    CGREATER<int> g;
+    const int size = 20;
+    int A[size];
+    
+
+    llenarAleatoriamente(A, size);
+
+    for (int i = 0; i < size; ++i)
+    {
+        cout << A[i] << " ";
+    }
+    cout << endl;
+
+    ordenar(A, size, g);
+
+    for (int i = 0; i < size; ++i)
+    {
+        cout << A[i] << " ";
+    }
+
+    return 0;
+}
+*/
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////INLINE//////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class T>
+struct CLESS
+{
+    inline bool operator()(T a, T b)
+    {
+        return a < b;
+    }
+};
+
+template<class T>
+struct CGREATER
+{
+    inline bool operator()(T a, T b)
+    {
+        return a > b;
+    }
+};
+
+template<class C>
+void ordenar(int* arr, int size, C p)
+{
+    for (int i = 0; i < size - 1; ++i) {
+        for (int j = 0; j < size - i - 1; ++j) {
+            if (p(arr[j], arr[j + 1])) {  //if (p(arr[j],arr[j+1]))
+                int temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+            }
+        }
+    }
+}
+
+int main()
+{
+    srand(time(nullptr));
+
+
+
+    CLESS<int> l;
+    CGREATER<int> g;
+    const int size = 20;
+    int A[size];
+
+
+    llenarAleatoriamente(A, size);
+
+    for (int i = 0; i < size; ++i)
+    {
+        cout << A[i] << " ";
+    }
+    cout << endl;
+
+    ordenar(A, size, g);
+
+    for (int i = 0; i < size; ++i)
+    {
+        cout << A[i] << " ";
+    }
+
+    return 0;
+}
