@@ -313,7 +313,7 @@ public:
 };
 
 template <class T>
-void CFLIST<T>::push_front(T valor)
+void CFLIST<T>::push_back(T valor)
 {
     if (!head)
     {
@@ -327,7 +327,7 @@ void CFLIST<T>::push_front(T valor)
 }
 
 template <class T>
-void CFLIST<T>::push_back(T valor)
+void CFLIST<T>::push_front(T valor)
 {
     if (!head)
     {
@@ -340,7 +340,7 @@ void CFLIST<T>::push_back(T valor)
 }
 
 template <class T>
-void CFLIST<T>::pop_front(T& valor)
+void CFLIST<T>::pop_back(T& valor)
 {
     if (!head)
     {
@@ -365,7 +365,7 @@ void CFLIST<T>::pop_front(T& valor)
 }
 
 template <class T>
-void CFLIST<T>::pop_back(T& valor)
+void CFLIST<T>::pop_front(T& valor)
 {
     if (!head)
     {
@@ -567,7 +567,7 @@ struct CSTACK
     {
         tipo.push_front(valor);
     }
-    void pop(T valor)
+    void pop(T &valor)
     {
         tipo.pop_front(valor);
     }
@@ -578,7 +578,7 @@ struct CSTACK
 };
 
 int main() {
-    CSTACK<int, Deque> stack(5,3);
+    CSTACK<int, Deque> stack(5, 3);
     CSTACK<int, CFLIST<int>> stack2;
     CSTACK<int, CVECTOR> stack3(3);
     cout << "USANDO EL DEQUE:" << endl;
@@ -596,6 +596,14 @@ int main() {
     stack.push(9);
     stack.push(6);
     stack.print();
+    int valor = 0;
+    stack.pop(valor);
+    cout << "valor extraido ->" << valor << endl;
+    stack.pop(valor);
+    cout << "valor extraido ->" << valor << endl;
+    stack.pop(valor);
+    cout << "valor extraido ->" << valor << endl;
+    stack.print();
 
     cout << endl << "USANDO EL CVECTOR:" << endl;
     stack3.push(6);
@@ -611,6 +619,13 @@ int main() {
     stack3.push(7);
     stack3.push(9);
     stack3.push(6);
+    stack3.print();
+    stack3.pop(valor);
+    cout << "valor extraido ->" << valor << endl;
+    stack3.pop(valor);
+    cout << "valor extraido ->" << valor << endl;
+    stack3.pop(valor);
+    cout << "valor extraido ->" << valor << endl;
     stack3.print();
 
     cout << endl << "USANDO LA LIST:" << endl;
@@ -628,4 +643,12 @@ int main() {
     stack2.push(9);
     stack2.push(6);
     stack2.print();
+    stack2.pop(valor);
+    cout << "valor extraido ->" << valor << endl;
+    stack2.pop(valor);
+    cout << "valor extraido ->" << valor << endl;
+    stack2.pop(valor);
+    cout << "valor extraido ->" << valor << endl;
+    stack2.print();
+
 }
