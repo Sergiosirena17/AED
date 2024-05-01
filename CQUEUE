@@ -1,0 +1,662 @@
+// Deque implementation in C++
+
+#include <iostream>
+#include <cassert>
+using namespace std;
+
+#define MAX 10
+
+template <class T>
+struct nodo
+{
+    T valor;
+    nodo<T>* next;
+    nodo<T>* prev;
+    nodo(T v, nodo<T>* n = NULL, nodo<T>* m = NULL) {
+        valor = v;
+        next = n;
+        prev = m;
+    }
+
+};
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////DEQUE//////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+struct Deque {
+    int size_vector_pointer{ 0 };
+    int size_vector{ 0 };
+    int** vector = NULL;
+    int** vector_fin = NULL;
+    int** s = NULL;
+    int** t = NULL;
+    int* p = NULL;
+    int* q = NULL;
+    int* INI = NULL;
+    int* FIN = NULL;
+    bool flag{ false };
+
+    Deque(int size_pointer_vector, int size_vector_)
+    {
+        size_vector_pointer = size_pointer_vector;
+        size_vector = size_vector_;
+        vector = new int* [size_vector_pointer];
+        vector_fin = vector + size_vector_pointer - 1;
+        s = vector + (size_vector_pointer / 2);
+        t = s;
+        *s = new int[size_vector];
+        p = *s + (size_vector / 2);
+        q = p;
+        INI = *s;
+        FIN = p + (size_vector / 2);
+    }
+
+    void push_back(int valor)
+    {
+        if (p == FIN + 1)
+        {
+            if (t + 1 == vector_fin + 1)
+            {
+                cout << "EXPANDIENDO VECTOR DE PUNTEROS" << endl;
+                int** tmp = vector;
+                int size_pointer_before = size_vector_pointer;
+                size_vector_pointer = (size_vector_pointer * 2) + 1;
+                vector = new int* [size_vector_pointer];
+                vector_fin = vector + size_vector_pointer - 1;
+                int x = ((size_vector_pointer % size_pointer_before) + size_pointer_before) / 2;
+
+                int** i = vector + x;
+                int** j = tmp;
+
+                for (; i != vector_fin - x + 1; i++, j++)
+                {
+                    if (j == s)
+                    {
+                        s = i;
+                    }
+                    if (j == t)
+                    {
+                        t = i;
+                    }
+                    *i = *j;
+                }
+                delete[] tmp;
+
+            }
+            t++;
+            *t = new int[size_vector];
+            p = *t;
+            FIN = p + size_vector - 1;
+            *p = valor;
+            p++;
+        }
+        else
+        {
+            *p = valor;
+            p++;
+            if (!flag)
+            {
+                q--;
+                flag = true;
+            }
+        }
+        flag = true;
+    }
+
+    void push_front(int valor)
+    {
+        if (q == INI - 1)
+        {
+            if (s - 1 == vector - 1)
+            {
+                cout << "EXPANDIENDO VECTOR DE PUNTEROS" << endl;
+                int** tmp = vector;
+                int size_pointer_before = size_vector_pointer;
+                size_vector_pointer = (size_vector_pointer * 2) + 1;
+                vector = new int* [size_vector_pointer];
+                vector_fin = vector + size_vector_pointer - 1;
+                int x = ((size_vector_pointer % size_pointer_before) + size_pointer_before) / 2;
+
+                int** i = vector + x;
+                int** j = tmp;
+
+                for (; i != vector_fin - x + 1; i++, j++)
+                {
+                    if (j == s)
+                    {
+                        s = i;
+                    }
+                    if (j == t)
+                    {
+                        t = i;
+                    }
+                    *i = *j;
+                }
+                delete[] tmp;
+            }
+            s--;
+            *s = new int[size_vector];
+            q = *s + size_vector - 1;
+            INI = *s;
+            *q = valor;
+            q--;
+        }
+        else
+        {
+            *q = valor;
+            q--;
+            if (!flag)
+            {
+                p++;
+                flag = true;
+            }
+        }
+        flag = true;
+    }
+
+    void pop_front(int& valor)
+    {
+        if (q + 1 == p)
+        {
+            cout << "EL VECTOR ESTA VACIO" << endl;
+        }
+        else
+        {
+            if (q + 2 == INI + size_vector)
+            {
+                valor = *(q + 1);
+                int** tmp = s;
+                s++;
+                INI = *s;
+                q = INI - 1;
+                delete[] * tmp;
+                *(s - 1) = NULL;
+            }
+            else
+            {
+                valor = *(q + 1);
+                q++;
+            }
+        }
+    }
+    void pop_back(int& valor)
+    {
+        if (p - 1 == q)
+        {
+            cout << "EL VECTOR ESTA VACIO" << endl;
+        }
+        else
+        {
+            if (p - 2 == FIN - size_vector)
+            {
+                valor = *(p - 1);
+                int** tmp = t;
+                t--;
+                FIN = *t + size_vector - 1;
+                p = FIN + 1;
+                delete[] * tmp;
+                *(t + 1) = NULL;
+            }
+            else
+            {
+                valor = *(p - 1);
+                p--;
+            }
+        }
+    }
+
+    void find(int** i, int*& begin, int*& end)
+    {
+        bool flag_2 = false;
+        bool flag_3 = false;
+        for (int* k = *i; k != *i + size_vector; k++)
+        {
+            if (k == q + 1)
+            {
+                begin = k;
+                flag_2 = true;
+            }
+            if (k == p - 1)
+            {
+                end = k;
+                flag_3 = true;
+            }
+        }
+        if (!flag_2)
+        {
+            begin = *i;
+        }
+        if (!flag_3)
+        {
+            end = *i + size_vector - 1;
+        }
+
+    }
+
+    int& operator[](int valor)
+    {
+        int** pos = s + 1;
+        int ideal = ((t - s) + 1) * size_vector;
+        int left = ((((*s) + size_vector) - q) - 1);
+        int right = (((p - (*t - 1)) - 1));
+
+        if (t == s)
+        {
+            if (p == q)
+            {
+                assert(valor > 0);
+                return *p;
+            }
+            else
+            {
+                assert(valor > (((p - 1) - (q + 1)) + 1));
+                return *(q + 1 + (valor / size_vector));
+            }
+        }
+        else
+        {
+            if (valor < left)
+            {
+                return *(q + valor + 1);
+            }
+            else
+            {
+                valor = valor - left;
+                if (valor < (size_vector * (((t - s)) + 1 - ((((s + 2) - s)) - 1) - ((((t + 2) - t)) - 1))))
+                {
+                    pos = pos + (valor / 3);
+                    return *(*pos + (valor % 3));
+                }
+                else
+                {
+                    return *(*t + (valor % 3));
+                }
+            }
+        }
+    }
+
+
+    void print()
+    {
+        for (int** tmp = s; tmp != t + 1; tmp++)
+        {
+            int* start = NULL; int* end = NULL;
+            find(tmp, start, end);
+            for (; start != end + 1; start++)
+            {
+                cout << *start << "->";
+            }
+            cout << "  =>  ";
+        }
+        cout << endl;
+    }
+};
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////CLIST//////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <class T>
+class CFLIST
+{
+public:
+    nodo<T>* head = NULL;
+    nodo<T>* p = NULL;
+    void push_front(T valor);
+    void push_back(T valor);
+    void pop_front(T& pos);
+    void pop_back(T& pos);
+    T& operator[](T id);
+    void print();
+};
+
+template <class T>
+void CFLIST<T>::push_front(T valor)
+{
+
+    if (!head)
+    {
+        head = new nodo <T>(valor, head, head); p = head;
+    }
+    else
+    {
+        head = new nodo <T>(valor, head, NULL); head->next->prev = head;
+    }
+}
+
+template <class T>
+void CFLIST<T>::push_back(T valor)
+{
+    if (!head)
+    {
+        head = new nodo <T>(valor, head, head); p = head;
+    }
+    else
+    {
+        p->next = new nodo<T>(valor, p->next, p);
+        p = p->next;
+    }
+}
+
+template <class T>
+void CFLIST<T>::pop_front(T& valor)
+{
+    if (!head)
+    {
+        cout << "LA LISTA ENLAZADA ESTA VACIA" << endl;
+    }
+    if (p == head)
+    {
+        nodo<T>* tmp = p;
+        valor = tmp->valor;
+        p = NULL;
+        head = NULL;
+        delete tmp;
+    }
+    else
+    {
+        nodo<T>* tmp = p;
+        valor = tmp->valor;
+        p = p->prev;
+        delete tmp;
+        p->next = NULL;
+    }
+}
+
+template <class T>
+void CFLIST<T>::pop_back(T& valor)
+{
+    if (!head)
+    {
+        cout << "LA LISTA ENLAZADA ESTA VACIA" << endl;
+    }
+    if (p == head)
+    {
+        nodo<T>* tmp = head;
+        valor = tmp->valor;
+        p = NULL;
+        head = NULL;
+        delete tmp;
+    }
+    else
+    {
+        nodo<T>* tmp = head;
+        valor = tmp->valor;
+        head = head->next;
+        delete tmp;
+        head->prev = NULL;
+    }
+}
+
+template <class T>
+void CFLIST<T>::print()
+{
+    if (!head)
+    {
+        cout << "LA LISTA ENLAZADA ESTA VACIA" << endl;
+    }
+    else
+    {
+        cout << "head->";
+        for (nodo<T>* p = head; p; p = p->next)
+        {
+            cout << p->valor << "->";
+        }
+        cout << endl;
+    }
+}
+
+template <class T>
+T& CFLIST<T>::operator[](T id) {
+    assert(id >= 0);
+    nodo<T>* s = head;
+    while (s != nullptr && id > 0) {
+        s = s->next;
+        id--;
+    }
+    assert(s != nullptr);
+    return s->valor;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////CVECTOR////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+struct CVECTOR {
+    int* vector;
+    int size;
+    int limite;
+    int* p = NULL;
+    int* q = NULL;
+    int* INI = NULL;
+    bool flag = false;
+    int* FIN = NULL;
+
+    CVECTOR(int size_inicial) {
+        size = size_inicial;
+        limite = size;
+        vector = new int[size];
+        INI = vector;
+        p = INI;
+        q = INI;
+        FIN = INI + size;
+    }
+
+    ~CVECTOR() {
+        delete[] vector;
+    }
+
+    void push_back(int valor) {
+        if (p < FIN) {
+            *p = valor;
+            p++;
+        }
+        else {
+            size = size * 2;
+            int* tmp = new int[size];
+            int* tmp_ = tmp;
+            for (int* i = INI; i < FIN; i++, tmp_++) {
+                *tmp_ = *i;
+            }
+            p = tmp_;
+            INI = tmp;
+            FIN = tmp + size;
+            *p = valor;
+            p++;
+            delete[] vector;
+            vector = INI;
+            q = vector;
+            tmp_ = NULL;
+            tmp = NULL;
+        }
+        flag = true;
+    }
+
+    void push_front(int valor) {
+        if (!flag) {
+            *q = valor;
+            p++;
+            flag = true;
+        }
+        else {
+            if (p >= FIN) {
+                size = size * 2;
+                int* tmp = new int[size];
+                int* tmp_ = tmp;
+                for (int* i = INI; i < FIN; i++, tmp_++) {
+                    *tmp_ = *i;
+                }
+                p = tmp_;
+                INI = tmp;
+                FIN = tmp + size;
+                delete[] vector;
+                vector = INI;
+                q = INI;
+                tmp_ = NULL;
+                tmp = NULL;
+            }
+            for (int* t = p - 1, *s = p; t != INI - 1; t--, s--) {
+                *s = *t;
+            }
+            *q = valor;
+            p++;
+        }
+    }
+    void pop_back(int& valor)
+    {
+        if (p == INI)
+        {
+            cout << "El vector está vacío" << endl;
+        }
+        else
+        {
+            p--;
+            valor = *p;
+        }
+    }
+    void pop_front(int& valor)
+    {
+        if (p == INI)
+        {
+            cout << "El vector está vacío" << endl;
+        }
+        else
+        {
+            valor = *q;
+            for (int* t = INI, *s = q + 1; s != p; t++, s++)
+            {
+                *t = *s;
+            }
+            p--;
+
+        }
+    }
+    void print() {
+        cout << "CVECTOR: ";
+        for (int* i = vector; i < p; i++) {
+            cout << *i << " ";
+        }
+        cout << endl;
+        cout << "longitud: " << (p - vector) << endl;
+        cout << "Capacidad: " << size << endl;
+    }
+};
+
+
+
+
+
+
+template<class T, class K>
+struct CQUEUE
+{
+    K tipo;
+
+    CQUEUE(int size_pointer_vector, int size_vector_) : tipo(size_pointer_vector, size_vector_)
+    {
+    }
+    CQUEUE(int size_pointer_vector) : tipo(size_pointer_vector)
+    {
+    }
+    CQUEUE() : tipo()
+    {
+    }
+    
+    void push(T valor)
+    {
+        tipo.push_back(valor);
+    }
+    void pop(T&valor)
+    {
+        tipo.pop_front(valor);
+    }
+    void print()
+    {
+        tipo.print();
+    }
+};
+
+int main() {
+    CQUEUE<int, Deque> queue(5, 3);
+    CQUEUE<int, CFLIST<int>> queue2;
+    CQUEUE<int, CVECTOR> queue3(3);
+    cout << "USANDO EL DEQUE:" << endl;
+    queue.push(6);
+    queue.push(6);
+    queue.push(6);
+    queue.push(6);
+    queue.push(6);
+    queue.push(6);
+    queue.push(4);
+    queue.push(1);
+    queue.push(1);
+    queue.push(0);
+    queue.push(7);
+    queue.push(9);
+    queue.push(6);
+    queue.print();
+    int valor = 0;
+    queue.pop(valor);
+    cout << "valor extraido ->" << valor << endl;
+    queue.pop(valor);
+    cout << "valor extraido ->" << valor << endl;
+    queue.pop(valor);
+    cout << "valor extraido ->" << valor << endl;
+    queue.print();
+
+
+
+    cout << endl << "USANDO EL CVECTOR:" << endl;
+    queue3.push(6);
+    queue3.push(6);
+    queue3.push(6);
+    queue3.push(6);
+    queue3.push(6);
+    queue3.push(6);
+    queue3.push(4);
+    queue3.push(1);
+    queue3.push(1);
+    queue3.push(0);
+    queue3.push(7);
+    queue3.push(9);
+    queue3.push(6);
+    queue3.print();
+    int valor1 = 0;
+    queue3.pop(valor1);
+    cout << "valor extraido ->" << valor1 << endl;
+    queue3.pop(valor1);
+    cout << "valor extraido ->" << valor1 << endl;
+    queue3.pop(valor1);
+    cout << "valor extraido ->" << valor1 << endl;
+    queue3.print();
+
+
+
+
+    cout << endl << "USANDO LA LIST:" << endl;
+    queue2.push(6);
+    queue2.push(6);
+    queue2.push(6);
+    queue2.push(6);
+    queue2.push(6);
+    queue2.push(6);
+    queue2.push(4);
+    queue2.push(1);
+    queue2.push(1);
+    queue2.push(0);
+    queue2.push(7);
+    queue2.push(9);
+    queue2.push(6);
+    queue2.print();
+    int valor2 = 0;
+    queue2.pop(valor2);
+    cout << "valor extraido ->" << valor2 << endl;
+    queue2.pop(valor2);
+    cout << "valor extraido ->" << valor2 << endl;
+    queue2.pop(valor2);
+    cout << "valor extraido ->" << valor2 << endl;
+    queue2.print();
+}
