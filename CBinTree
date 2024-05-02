@@ -1,0 +1,111 @@
+// Arbol Binario de Busqueda.cpp : Este archivo contiene la función "main". La ejecución del programa comienza y termina ahí.
+//
+
+#include <iostream>
+#include <cstdlib>
+#include <ctime>  
+using namespace std;
+
+template <class T>
+struct nodo
+{
+    T valor;
+    nodo<T>* nodos[2];
+    nodo(T valor_, nodo<T>* left = NULL, nodo<T>* right = NULL) {
+        valor = valor_;
+        *(nodos) = left;
+        *(nodos + 1) = right;
+    }
+};
+
+template<class T>
+struct CBinTree
+{
+    nodo<T>* root = NULL;
+    bool first = true;
+    bool insert(T valor);
+    bool remove(T valor);
+    nodo<T>** rep(nodo<T>** pos);
+    bool find(T valor, nodo<T>**& pos);
+};
+
+
+template<class T>
+bool CBinTree<T>::insert(T valor)
+{
+    nodo<T>** pos;
+    if (find(valor, pos)) return 0;
+    if (first) { *pos = new nodo<T>(valor, root, root); first = false; }
+    else
+    {
+        *pos = new nodo<T>(valor, (*pos), (*pos));
+    }
+    return 1;
+}
+
+template<class T>
+bool CBinTree<T>::remove(T valor)
+{
+    nodo<T>** pos;
+    if (!find(valor, pos)) return 0;
+    //caso 2
+    if ((*pos)->nodos[0] && (*pos)->nodos[1])
+    {
+        nodo<T>** q = rep(pos);
+        (*pos)->valor = (*q)->valor;
+        pos = q;
+    }
+    //caso 0 y 1
+    nodo<T>* tmp = *pos;
+    *pos = (*pos)->nodos[(*pos)->nodos[0] == 0];
+    delete tmp;
+    if (!root) { first = true; }
+    return 1;
+}
+
+template<class T>
+nodo<T>** CBinTree<T>::rep(nodo<T>** pos)
+{
+    nodo<T>** q;
+    int b = rand() % 2;
+    q = &((*pos)->nodos[b]);
+    while ((*q)->nodos[!b])
+        q = &((*q)->nodos[!b]);
+    return q;
+}
+template<class T>
+bool CBinTree<T>::find(T valor, nodo<T>**& pos)
+{
+    pos = &root;
+    while (*pos && (*pos)->valor != valor)
+    {
+        pos = &((*pos)->nodos[valor > (*pos)->valor]);
+    }
+    return *pos && (*pos)->valor == valor;
+}
+
+int main()
+{
+    srand(time(nullptr));
+
+    CBinTree<int> tree;
+
+    
+    for (int i = 0; i < 10; ++i) {
+        int valor = rand() % 100; 
+        cout << "ISERTANDO ->" << valor << endl;
+        tree.insert(valor);
+    }
+
+    
+    cout << "Valores del arbol binario de busqueda:" << endl;
+    for (int i = 0; i < 100; ++i) {
+        nodo<int>** pos;
+        if (tree.find(i, pos)) {
+            cout << (*pos)->valor << " ";
+        }
+    }
+    cout << endl;
+
+    return 0;
+}
