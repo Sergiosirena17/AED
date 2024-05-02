@@ -1,0 +1,99 @@
+// tails.cpp : Este archivo contiene la función "main". La ejecución del programa comienza y termina ahí.
+//
+
+#include <iostream>
+using namespace std;
+
+
+
+template <class T>
+struct nodo
+{
+    T valor;
+    nodo<T>* next;
+    nodo(T v, nodo<T>* n = NULL) {
+        valor = v;
+        next = n;
+    }
+};
+
+template <class T>
+class LE
+{
+public:
+    nodo<T>* head = NULL;
+    bool insert(T valor);
+    bool remove(T valor);
+    bool find(T valor, nodo<T>**& pos);
+    void print();
+};
+
+template <class T>
+bool LE<T>::find(T valor, nodo<T>**& pos)
+{
+    pos = &head;
+    while (*pos && (*pos)->valor < valor)
+    {
+        pos = &((*pos)->next);
+    }
+    return *pos && (*pos)->valor == valor;
+}
+
+
+template <class T>
+bool LE<T>::insert(T valor)
+{
+    nodo<T>** pos = NULL;
+    if (find(valor, pos)) return 0;
+    else
+    {
+        (*pos) = new nodo<T>(valor, (*pos));
+        return 1;
+    }
+}
+
+template <class T>
+void LE<T>::print()
+{
+    cout << "Head->";
+    for (nodo<T>* p = head; p; p = p->next)
+    {
+        cout << p->valor << "->";
+    }
+    cout << endl;
+}
+
+template<class T>
+bool LE<T>::remove(T valor)
+{
+    nodo<T>** pos = NULL;
+    if (!find(valor, pos)) return 0;
+    else
+    {
+        nodo<T> *tmp = (*pos);
+        (*pos) = (*pos)->next;
+        delete tmp;
+        return 1;
+    }
+        
+}
+int main()
+{
+    LE <int> n1;
+
+    n1.insert(57); n1.insert(2); n1.insert(14); n1.insert(9); n1.insert(5); n1.insert(6); n1.insert(11); n1.insert(4);
+    n1.print();
+    n1.remove(9);
+    n1.print();
+}
+
+
+// Ejecutar programa: Ctrl + F5 o menú Depurar > Iniciar sin depurar
+// Depurar programa: F5 o menú Depurar > Iniciar depuración
+
+// Sugerencias para primeros pasos: 1. Use la ventana del Explorador de soluciones para agregar y administrar archivos
+//   2. Use la ventana de Team Explorer para conectar con el control de código fuente
+//   3. Use la ventana de salida para ver la salida de compilación y otros mensajes
+//   4. Use la ventana Lista de errores para ver los errores
+//   5. Vaya a Proyecto > Agregar nuevo elemento para crear nuevos archivos de código, o a Proyecto > Agregar elemento existente para agregar archivos de código existentes al proyecto
+//   6. En el futuro, para volver a abrir este proyecto, vaya a Archivo > Abrir > Proyecto y seleccione el archivo .sln
