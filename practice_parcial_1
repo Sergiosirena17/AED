@@ -1,0 +1,154 @@
+#include <iostream>
+
+template <class T>
+struct CForwardNode
+{
+    CForwardNode(T x)
+    {
+        value = x;  next = 0;
+    }
+    T value;
+    CForwardNode<T>* next;
+};
+
+template <class T>
+class CForwardList
+{
+public:
+    CForwardList();
+    ~CForwardList();
+    CForwardNode<T>* GetHead() { return head; }
+    bool Find(T x, CForwardNode<T>**& p);
+    bool Ins(T x);
+    bool Rem(T x);
+    void Print();
+private:
+    CForwardNode<T>* head;
+};
+
+template <class T>
+CForwardList<T>::CForwardList()
+{
+    head = 0;
+}
+
+template <class T>
+CForwardList<T>::~CForwardList()
+{
+    //...
+}
+
+template <class T>
+bool CForwardList<T>::Find(T x, CForwardNode<T>**& p)
+{
+    for (p = &head; *p && (*p)->value < x; p = &(*p)->next);
+    return *p && (*p)->value == x;
+}
+
+template <class T>
+bool CForwardList<T>::Ins(T x)
+{
+    CForwardNode<T>** p;
+    if (Find(x, p)) return 0;
+    CForwardNode<T>* t = new CForwardNode<T>(x);
+    t->next = *p;
+    *p = t;
+    return 1;
+}
+
+template <class T>
+bool CForwardList<T>::Rem(T x)
+{
+    CForwardNode<T>** p;
+    if (!Find(x, p)) return 0;
+    CForwardNode<T>* t = *p;
+    *p = t->next;
+    delete t;
+    return 1;
+}
+
+template <class T>
+void CForwardList<T>::Print()
+{
+    for (CForwardNode<T>* t = head; t; t = t->next)
+        std::cout << t->value << " ";
+    std::cout << "\n";
+}
+
+template <class T>
+struct aumentar_3
+{
+    bool operator()(CForwardNode<T>* p)
+    {
+        if (!(p->value % 3))
+        {
+            p->value = p->value + 10;
+            return true;
+        }
+        return 0;
+    }
+};
+void proc1(CForwardList<int>* l)
+{
+    
+    aumentar_3<int> aumentar;
+    for (CForwardNode<int>* i = l->GetHead(); i; i = i->next)
+    {
+        aumentar(i);
+    }
+}
+
+template<class T>
+class Comparador {
+public:
+    virtual  bool comparar(CForwardNode<T>* a, CForwardNode<T>* b) = 0;
+};
+
+template<class T>
+class No_pertenece : public Comparador<T> {
+public:
+    bool comparar(CForwardNode<T>* a, CForwardNode<T>* b) {
+        return (a->value > b->value) && ((a->value)%3);
+    }
+};
+
+template<class T>
+class pertenece : public Comparador<T> {
+public:
+    bool comparar(CForwardNode<T>* a, CForwardNode<T>* b) {
+        return a->value < b->value;
+    }
+};
+
+
+void proc2(CForwardList<int>* l)
+{
+    No_pertenece<int> Nope;
+    pertenece<int> Sip;
+    for (CForwardNode<int>* i = l->GetHead(), * j = i->next; i && j;)
+    {
+        if (Nope.comparar(i,j))
+        {
+            CForwardNode<int>* tmp = i;
+            i = i->next;
+            j = j->next;
+            l->Rem(tmp->value);
+        }
+        else
+        {
+            i = i->next;
+            j = j->next;
+        }
+    }
+}
+
+int main()
+{
+    CForwardList<int> l;
+    l.Ins(6);   l.Ins(18);  l.Ins(26);  l.Ins(17);
+    l.Ins(3);   l.Ins(4);   l.Ins(27);  l.Ins(30);
+    l.Ins(7);   l.Ins(11);  l.Ins(24);  l.Ins(25);
+    l.Ins(1);   l.Ins(2);   l.Print();
+    proc1(&l);  l.Print();
+    proc2(&l);  l.Print();
+}
