@@ -6,6 +6,12 @@
 #include <ctime>  
 using namespace std;
 
+
+//////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////USANDO PILA//////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+
+
 template <class T>
 struct nodo
 {
@@ -18,17 +24,86 @@ struct nodo
     }
 };
 
+
+template <class T>
+struct par
+{
+    T valor = 0;
+    nodo<T>* pointer;
+    par<T>* next;
+    
+
+    par(par<T>* p_ = NULL, nodo<T> *ptr = NULL)
+    {
+        pointer = ptr;
+        next = p_;
+    }
+};
+
+template <class T>
+struct PILA {
+    par<T>* head;
+
+    PILA(par<T>* h = NULL)
+    {
+        head = h;
+    }
+    void push( nodo<T>* p)
+    {
+        if (!p) return;
+        head = new par<T>(head, p);
+    }
+
+    void pop()
+    {
+        par<T>* tmp = head;
+        head = head->next;
+        delete tmp;
+    }
+};
+
 template<class T>
 struct CBinTree
 {
     nodo<T>* root = NULL;
+    PILA<T> pila;
     bool first = true;
     bool insert(T valor);
     bool remove(T valor);
     nodo<T>** rep(nodo<T>** pos);
     bool find(T valor, nodo<T>**& pos);
+    void ordenar_sin_rec(nodo<T>* p);
 };
 
+
+template<class T>
+void CBinTree<T>::ordenar_sin_rec(nodo<T>* p)
+{
+    pila.push(p);
+    while (pila.head)
+    {
+        switch (pila.head->valor)
+        {
+        case 0:
+            pila.head->valor = 1;
+            p = p->nodos[0];
+            pila.push(p);
+            break;
+        case 1:
+            cout << pila.head->pointer->valor << " ";
+            pila.head->valor = 2;
+            break;
+        case 2:
+            pila.head->valor = 3;
+            p = pila.head->pointer->nodos[1];
+            pila.push(p);
+            break;
+        case 3:
+            pila.pop();
+            break;
+        }
+    }
+}
 
 template<class T>
 bool CBinTree<T>::insert(T valor)
@@ -84,28 +159,38 @@ bool CBinTree<T>::find(T valor, nodo<T>**& pos)
     return *pos && (*pos)->valor == valor;
 }
 
+template <class T>
+void Inorder(nodo<T>* p)
+{
+    if (!p) return;
+    Inorder(p->nodos[0]);
+    cout << p->valor << " ";
+    Inorder(p->nodos[1]);
+}
+
+
+
 int main()
 {
     srand(time(nullptr));
 
     CBinTree<int> tree;
 
-    
+
     for (int i = 0; i < 10; ++i) {
-        int valor = rand() % 100; 
-        cout << "ISERTANDO ->" << valor << endl;
+        int valor = rand() % 100;
+        cout << "INSERTANDO ->" << valor << endl;
         tree.insert(valor);
     }
 
-    
-    cout << "Valores del arbol binario de busqueda:" << endl;
-    for (int i = 0; i < 100; ++i) {
-        nodo<int>** pos;
-        if (tree.find(i, pos)) {
-            cout << (*pos)->valor << " ";
-        }
-    }
-    cout << endl;
+
+    cout << "Valores del arbol binario de busqueda USANDO INORDER" << endl;
+
+    Inorder(tree.root);
+
+    cout << endl << "Valores del arbol binario de busqueda USANDO PRINT_SIN_RECURSION" << endl;
+
+    tree.ordenar_sin_rec(tree.root);
 
     return 0;
 }
