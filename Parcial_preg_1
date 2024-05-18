@@ -10,7 +10,7 @@ class node
 public:
     int data;
     node* next;
-    node(int dt,node* nxt)
+    node(int dt, node* nxt)
     {
         data = dt;
         next = nxt;
@@ -76,12 +76,20 @@ public:
         if (!one_node)
         {
             
+
             for (node* s = head->next; p->next != head; s = s->next, p = p->next)
             {
                 if (s->data == value) return true;
             }
+            if (p->next->data == value)
+            {
+                return true;
+
+            }
             return false;
         }
+        if (p->data == value) return true;
+        else return false;
     }
     void del(int value)
     {
@@ -89,6 +97,14 @@ public:
 
         if (find(p, value))
         {
+            if (p->next == p) one_node = true;
+            if(one_node)
+            {
+                delete head;
+                head = NULL;
+                one_node = false;
+                return;
+            }
             if (p->next == head)
             {
                 head = head->next;
