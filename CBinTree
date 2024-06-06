@@ -4,6 +4,8 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>  
+#include <stack>  
+#include <utility>
 using namespace std;
 
 
@@ -31,9 +33,9 @@ struct par
     T valor = 0;
     nodo<T>* pointer;
     par<T>* next;
-    
 
-    par(par<T>* p_ = NULL, nodo<T> *ptr = NULL)
+
+    par(par<T>* p_ = NULL, nodo<T>* ptr = NULL)
     {
         pointer = ptr;
         next = p_;
@@ -48,7 +50,7 @@ struct PILA {
     {
         head = h;
     }
-    void push( nodo<T>* p)
+    void push(nodo<T>* p)
     {
         if (!p) return;
         head = new par<T>(head, p);
@@ -99,6 +101,41 @@ void CBinTree<T>::ordenar_sin_rec(nodo<T>* p)
             pila.push(p);
             break;
         case 3:
+            pila.pop();
+            break;
+        }
+    }
+}
+
+template <class T>
+void Inorder_DS(nodo<T>* p) {
+    if (p == nullptr) {
+        return;
+    }
+
+    std::stack<pair<nodo<T>*, int>> pila;
+    pila.push(make_pair(p, 0));
+
+    while (!pila.empty()) {
+        auto& par = pila.top(); // Obtener una referencia al par en el tope del stack
+        nodo<T>* t = par.first;
+        int& value = par.second; // Crear una referencia al segundo elemento del par
+
+        switch (value) {
+        case 0:
+            if (t->nodos[0] != nullptr) {
+                pila.push(make_pair(t->nodos[0], 0));
+            }
+            value = 1;
+            break;
+        case 1:
+            cout << t->valor << " ";
+            value = 2;
+            if (t->nodos[1] != nullptr) {
+                pila.push(make_pair(t->nodos[1], 0));
+            }
+            break;
+        case 2:
             pila.pop();
             break;
         }
@@ -168,8 +205,91 @@ void Inorder(nodo<T>* p)
     Inorder(p->nodos[1]);
 }
 
+template <class T>
+void Postorder(nodo<T>* p)
+{
+    if (!p) return;
+    Inorder(p->nodos[0]);
+    Inorder(p->nodos[1]);
+    cout << p->valor << " ";
+}
+template <class T>
+void Preorder(nodo<T>* p)
+{
+    if (!p) return;
+    cout << p->valor << " ";
+    Inorder(p->nodos[0]);
+    Inorder(p->nodos[1]);
+}
+template <class T>
+void Preorder_DS(nodo<T>* p) {
+    if (p == nullptr) {
+        return;
+    }
 
+    std::stack<pair<nodo<T>*, int>> pila;
+    pila.push(make_pair(p, 0));
 
+    while (!pila.empty()) {
+        auto& par = pila.top(); 
+        nodo<T>* t = par.first;
+        int& value = par.second; 
+
+        switch (value) {
+        case 0:
+            cout << t->valor << " ";
+            value = 1;
+            if (t->nodos[0] != nullptr) {
+                pila.push(make_pair(t->nodos[0], 0));
+            }
+            break;
+        case 1:
+            value = 2;
+            if (t->nodos[1] != nullptr) {
+                pila.push(make_pair(t->nodos[1], 0));
+            }
+            break;
+        case 2:
+            pila.pop();
+            break;
+        }
+    }
+}
+
+template <class T>
+void Postorder_DS(nodo<T>* p) {
+    if (p == nullptr) {
+        return;
+    }
+
+    std::stack<pair<nodo<T>*, int>> pila;
+    pila.push(make_pair(p, 0));
+
+    while (!pila.empty()) {
+        auto& par = pila.top(); // Obtener una referencia al par en el tope del stack
+        nodo<T>* t = par.first;
+        int& value = par.second; // Crear una referencia al segundo elemento del par
+
+        switch (value) {
+        case 0:
+            if (t->nodos[0] != nullptr) {
+                pila.push(make_pair(t->nodos[0], 0));
+            }
+            value = 1;
+            break;
+        case 1:
+            if (t->nodos[1] != nullptr) {
+                pila.push(make_pair(t->nodos[1], 0));
+            }
+            value = 2;
+            break;
+        case 2:
+            cout << t->valor << " ";
+            pila.pop();
+            break;
+        }
+    }
+}
 int main()
 {
     srand(time(nullptr));
@@ -188,9 +308,30 @@ int main()
 
     Inorder(tree.root);
 
-    cout << endl << "Valores del arbol binario de busqueda USANDO PRINT_SIN_RECURSION" << endl;
+    cout << endl << "Valores del arbol binario de busqueda USANDO INORDER_DS_OWN_PAIR & STACK" << endl;
 
     tree.ordenar_sin_rec(tree.root);
+
+    cout << endl << "Valores del arbol binario de busqueda USANDO INORDER_DS" << endl;
+
+    Inorder_DS(tree.root);
+
+    cout << endl << "Valores del arbol binario de busqueda USANDO POSTORDER" << endl;
+
+    Postorder(tree.root);
+
+    cout << endl << "Valores del arbol binario de busqueda USANDO POSTORDER_DS" << endl;
+
+    Postorder_DS(tree.root);
+
+    cout << endl << "Valores del arbol binario de busqueda USANDO PREORDER" << endl;
+
+    Preorder(tree.root);
+
+    cout << endl << "Valores del arbol binario de busqueda USANDO PREORDER_DS" << endl;
+
+    Preorder_DS(tree.root);
+
 
     return 0;
 }
