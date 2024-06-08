@@ -1,42 +1,33 @@
-// Arbol Binario de Busqueda.cpp : Este archivo contiene la función "main". La ejecución del programa comienza y termina ahí.
-//
-
 #include <iostream>
 #include <cstdlib>
-#include <ctime>  
-#include <stack>  
+#include <ctime>
+#include <stack>
+#include <queue>
 #include <utility>
+#include <vector>
+#include <algorithm>
 using namespace std;
 
-
-//////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////USANDO PILA//////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////
-
-
 template <class T>
-struct nodo
-{
+struct nodo {
     T valor;
     nodo<T>* nodos[2];
+    int altura;  // Se añade un campo para almacenar la altura del nodo
     nodo(T valor_, nodo<T>* left = NULL, nodo<T>* right = NULL) {
         valor = valor_;
         *(nodos) = left;
         *(nodos + 1) = right;
+        altura = 1;  // Inicialmente, la altura de un nuevo nodo es 1
     }
 };
 
-
 template <class T>
-struct par
-{
+struct par {
     T valor = 0;
     nodo<T>* pointer;
     par<T>* next;
 
-
-    par(par<T>* p_ = NULL, nodo<T>* ptr = NULL)
-    {
+    par(par<T>* p_ = NULL, nodo<T>* ptr = NULL) {
         pointer = ptr;
         next = p_;
     }
@@ -46,18 +37,15 @@ template <class T>
 struct PILA {
     par<T>* head;
 
-    PILA(par<T>* h = NULL)
-    {
+    PILA(par<T>* h = NULL) {
         head = h;
     }
-    void push(nodo<T>* p)
-    {
+    void push(nodo<T>* p) {
         if (!p) return;
         head = new par<T>(head, p);
     }
 
-    void pop()
-    {
+    void pop() {
         par<T>* tmp = head;
         head = head->next;
         delete tmp;
@@ -65,8 +53,7 @@ struct PILA {
 };
 
 template<class T>
-struct CBinTree
-{
+struct CBinTree {
     nodo<T>* root = NULL;
     PILA<T> pila;
     bool first = true;
@@ -75,17 +62,23 @@ struct CBinTree
     nodo<T>** rep(nodo<T>** pos);
     bool find(T valor, nodo<T>**& pos);
     void ordenar_sin_rec(nodo<T>* p);
+    void toMinHeap(nodo<T>* p);
+    void toAVL(nodo<T>*& p);
+private:
+    void inorder(nodo<T>* p, vector<T>& values);
+    void buildMinHeap(nodo<T>* p, vector<T>& values, int& index);
+    int height(nodo<T>* p);
+    int getBalance(nodo<T>* p);
+    void rightRotate(nodo<T>*& y);
+    void leftRotate(nodo<T>*& x);
+    void balance(nodo<T>*& p);
 };
 
-
 template<class T>
-void CBinTree<T>::ordenar_sin_rec(nodo<T>* p)
-{
+void CBinTree<T>::ordenar_sin_rec(nodo<T>* p) {
     pila.push(p);
-    while (pila.head)
-    {
-        switch (pila.head->valor)
-        {
+    while (pila.head) {
+        switch (pila.head->valor) {
         case 0:
             pila.head->valor = 1;
             p = p->nodos[0];
@@ -143,26 +136,23 @@ void Inorder_DS(nodo<T>* p) {
 }
 
 template<class T>
-bool CBinTree<T>::insert(T valor)
-{
+bool CBinTree<T>::insert(T valor) {
     nodo<T>** pos;
     if (find(valor, pos)) return 0;
     if (first) { *pos = new nodo<T>(valor, root, root); first = false; }
-    else
-    {
+    else {
         *pos = new nodo<T>(valor, (*pos), (*pos));
     }
+    toAVL(root);  // Balancear el árbol después de cada inserción
     return 1;
 }
 
 template<class T>
-bool CBinTree<T>::remove(T valor)
-{
+bool CBinTree<T>::remove(T valor) {
     nodo<T>** pos;
     if (!find(valor, pos)) return 0;
     //caso 2
-    if ((*pos)->nodos[0] && (*pos)->nodos[1])
-    {
+    if ((*pos)->nodos[0] && (*pos)->nodos[1]) {
         nodo<T>** q = rep(pos);
         (*pos)->valor = (*q)->valor;
         pos = q;
@@ -172,12 +162,12 @@ bool CBinTree<T>::remove(T valor)
     *pos = (*pos)->nodos[(*pos)->nodos[0] == 0];
     delete tmp;
     if (!root) { first = true; }
+    toAVL(root);  // Balancear el árbol después de cada eliminación
     return 1;
 }
 
 template<class T>
-nodo<T>** CBinTree<T>::rep(nodo<T>** pos)
-{
+nodo<T>** CBinTree<T>::rep(nodo<T>** pos) {
     nodo<T>** q;
     int b = rand() % 2;
     q = &((*pos)->nodos[b]);
@@ -185,20 +175,18 @@ nodo<T>** CBinTree<T>::rep(nodo<T>** pos)
         q = &((*q)->nodos[!b]);
     return q;
 }
+
 template<class T>
-bool CBinTree<T>::find(T valor, nodo<T>**& pos)
-{
+bool CBinTree<T>::find(T valor, nodo<T>**& pos) {
     pos = &root;
-    while (*pos && (*pos)->valor != valor)
-    {
+    while (*pos && (*pos)->valor != valor) {
         pos = &((*pos)->nodos[valor > (*pos)->valor]);
     }
     return *pos && (*pos)->valor == valor;
 }
 
 template <class T>
-void Inorder(nodo<T>* p)
-{
+void Inorder(nodo<T>* p) {
     if (!p) return;
     Inorder(p->nodos[0]);
     cout << p->valor << " ";
@@ -206,21 +194,21 @@ void Inorder(nodo<T>* p)
 }
 
 template <class T>
-void Postorder(nodo<T>* p)
-{
+void Postorder(nodo<T>* p) {
     if (!p) return;
     Inorder(p->nodos[0]);
     Inorder(p->nodos[1]);
     cout << p->valor << " ";
 }
+
 template <class T>
-void Preorder(nodo<T>* p)
-{
+void Preorder(nodo<T>* p) {
     if (!p) return;
     cout << p->valor << " ";
     Inorder(p->nodos[0]);
     Inorder(p->nodos[1]);
 }
+
 template <class T>
 void Preorder_DS(nodo<T>* p) {
     if (p == nullptr) {
@@ -231,9 +219,9 @@ void Preorder_DS(nodo<T>* p) {
     pila.push(make_pair(p, 0));
 
     while (!pila.empty()) {
-        auto& par = pila.top(); 
+        auto& par = pila.top();
         nodo<T>* t = par.first;
-        int& value = par.second; 
+        int& value = par.second;
 
         switch (value) {
         case 0:
@@ -266,9 +254,9 @@ void Postorder_DS(nodo<T>* p) {
     pila.push(make_pair(p, 0));
 
     while (!pila.empty()) {
-        auto& par = pila.top(); // Obtener una referencia al par en el tope del stack
+        auto& par = pila.top();
         nodo<T>* t = par.first;
-        int& value = par.second; // Crear una referencia al segundo elemento del par
+        int& value = par.second;
 
         switch (value) {
         case 0:
@@ -290,12 +278,115 @@ void Postorder_DS(nodo<T>* p) {
         }
     }
 }
-int main()
-{
+
+template <class T>
+void Levels(nodo<T>* n) {
+    if (!n) return;
+    std::queue<std::pair<nodo<T>*, int>> q;
+    q.push({ n, 0 });
+    int l = 0;
+    while (!q.empty()) {
+        int last = l;
+        std::pair<nodo<T>*, int> pp = q.front();
+        nodo<T>* p = pp.first;
+        l = pp.second;
+        q.pop();
+        if (last != l) cout << endl;
+        cout << p->valor << "(" << l << ") ";
+        if (p->nodos[0]) q.push({ p->nodos[0], l + 1 });
+        if (p->nodos[1]) q.push({ p->nodos[1], l + 1 });
+    }
+}
+
+template<class T>
+void CBinTree<T>::inorder(nodo<T>* p, vector<T>& values) {
+    if (!p) return;
+    inorder(p->nodos[0], values);
+    values.push_back(p->valor);
+    inorder(p->nodos[1], values);
+}
+
+template<class T>
+void CBinTree<T>::buildMinHeap(nodo<T>* p, vector<T>& values, int& index) {
+    if (!p) return;
+    p->valor = values[index++];
+    buildMinHeap(p->nodos[0], values, index);
+    buildMinHeap(p->nodos[1], values, index);
+}
+
+template<class T>
+void CBinTree<T>::toMinHeap(nodo<T>* p) {
+    vector<T> values;
+    inorder(p, values);
+    sort(values.begin(), values.end());
+    int index = 0;
+    buildMinHeap(p, values, index);
+}
+
+template<class T>
+int CBinTree<T>::height(nodo<T>* p) {
+    return p ? p->altura : 0;
+}
+
+template<class T>
+int CBinTree<T>::getBalance(nodo<T>* p) {
+    return p ? height(p->nodos[0]) - height(p->nodos[1]) : 0;
+}
+
+template<class T>
+void CBinTree<T>::rightRotate(nodo<T>*& y) {
+    nodo<T>* x = y->nodos[0];
+    nodo<T>* T2 = x->nodos[1];
+    x->nodos[1] = y;
+    y->nodos[0] = T2;
+    y->altura = max(height(y->nodos[0]), height(y->nodos[1])) + 1;
+    x->altura = max(height(x->nodos[0]), height(x->nodos[1])) + 1;
+    y = x;
+}
+
+template<class T>
+void CBinTree<T>::leftRotate(nodo<T>*& x) {
+    nodo<T>* y = x->nodos[1];
+    nodo<T>* T2 = y->nodos[0];
+    y->nodos[0] = x;
+    x->nodos[1] = T2;
+    x->altura = max(height(x->nodos[0]), height(x->nodos[1])) + 1;
+    y->altura = max(height(y->nodos[0]), height(y->nodos[1])) + 1;
+    x = y;
+}
+
+template<class T>
+void CBinTree<T>::balance(nodo<T>*& p) {
+    if (!p) return;
+    p->altura = max(height(p->nodos[0]), height(p->nodos[1])) + 1;
+    int balance = getBalance(p);
+
+    if (balance > 1) {
+        if (getBalance(p->nodos[0]) < 0) {
+            leftRotate(p->nodos[0]);
+        }
+        rightRotate(p);
+    }
+    else if (balance < -1) {
+        if (getBalance(p->nodos[1]) > 0) {
+            rightRotate(p->nodos[1]);
+        }
+        leftRotate(p);
+    }
+}
+
+template<class T>
+void CBinTree<T>::toAVL(nodo<T>*& p) {
+    if (!p) return;
+    toAVL(p->nodos[0]);
+    toAVL(p->nodos[1]);
+    balance(p);
+}
+
+int main() {
     srand(time(nullptr));
 
     CBinTree<int> tree;
-
 
     for (int i = 0; i < 10; ++i) {
         int valor = rand() % 100;
@@ -303,35 +394,59 @@ int main()
         tree.insert(valor);
     }
 
-
     cout << "Valores del arbol binario de busqueda USANDO INORDER" << endl;
-
     Inorder(tree.root);
+    cout << "\n";
 
     cout << endl << "Valores del arbol binario de busqueda USANDO INORDER_DS_OWN_PAIR & STACK" << endl;
-
     tree.ordenar_sin_rec(tree.root);
+    cout << "\n";
 
     cout << endl << "Valores del arbol binario de busqueda USANDO INORDER_DS" << endl;
-
     Inorder_DS(tree.root);
+    cout << "\n";
 
     cout << endl << "Valores del arbol binario de busqueda USANDO POSTORDER" << endl;
-
     Postorder(tree.root);
+    cout << "\n";
 
     cout << endl << "Valores del arbol binario de busqueda USANDO POSTORDER_DS" << endl;
-
     Postorder_DS(tree.root);
+    cout << "\n";
 
     cout << endl << "Valores del arbol binario de busqueda USANDO PREORDER" << endl;
-
     Preorder(tree.root);
+    cout << "\n";
 
     cout << endl << "Valores del arbol binario de busqueda USANDO PREORDER_DS" << endl;
-
     Preorder_DS(tree.root);
+    cout << "\n";
 
+    cout << endl << "Valores del arbol binario de busqueda POR NIVELES" << endl;
+    Levels(tree.root);
+    cout << "\n";
+
+    cout << "Convirtiendo el arbol a Min-Heap..." << endl;
+    tree.toMinHeap(tree.root);
+
+    cout << "Valores del arbol Min-Heap USANDO INORDER" << endl;
+    Inorder(tree.root);
+    cout << "\n";
+
+    cout << "Valores del arbol Min-Heap USANDO LEVELS" << endl;
+    Levels(tree.root);
+    cout << "\n";
+
+    cout << "Convirtiendo el arbol a AVL..." << endl;
+    tree.toAVL(tree.root);
+
+    cout << "Valores del arbol AVL USANDO INORDER" << endl;
+    Inorder(tree.root);
+    cout << "\n";
+
+    cout << "Valores del arbol AVL USANDO LEVELS" << endl;
+    Levels(tree.root);
+    cout << "\n";
 
     return 0;
 }
