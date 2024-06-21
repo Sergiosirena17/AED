@@ -6,6 +6,7 @@
 #include <utility>
 #include <vector>
 #include <algorithm>
+#include <string>
 using namespace std;
 
 template <class T>
@@ -59,6 +60,7 @@ struct CBinTree {
     bool first = true;
     bool insert(T valor);
     bool remove(T valor);
+    bool avl = false;
     nodo<T>** rep(nodo<T>** pos);
     bool find(T valor, nodo<T>**& pos);
     void ordenar_sin_rec(nodo<T>* p);
@@ -143,7 +145,7 @@ bool CBinTree<T>::insert(T valor) {
     else {
         *pos = new nodo<T>(valor, (*pos), (*pos));
     }
-    toAVL(root);  // Balancear el árbol después de cada inserción
+    if(avl) toAVL(root);  // Balancear el árbol después de cada inserción
     return 1;
 }
 
@@ -162,7 +164,7 @@ bool CBinTree<T>::remove(T valor) {
     *pos = (*pos)->nodos[(*pos)->nodos[0] == 0];
     delete tmp;
     if (!root) { first = true; }
-    toAVL(root);  // Balancear el árbol después de cada eliminación
+    if (avl) toAVL(root);  // Balancear el árbol después de cada eliminación
     return 1;
 }
 
@@ -383,17 +385,67 @@ void CBinTree<T>::toAVL(nodo<T>*& p) {
     balance(p);
 }
 
+template<class T>
+void getInorder(nodo<T>* root, vector<T>& inorder) {
+    if (!root) return;
+        getInorder(root->nodos[0], inorder);
+        inorder.push_back(root->valor);
+        getInorder(root->nodos[1], inorder);
+    
+}
+
+template<class T>
+void getPreorder(nodo<T>* root, vector<T>& preorder) {
+    if (!root) return;
+        preorder.push_back(root->valor);
+        getPreorder(root->nodos[0], preorder);
+        getPreorder(root->nodos[1], preorder);
+}
+
+template<class T>
+void calculatePositions(vector<T>& inorder, vector<T>& preorder, vector<pair<int, int>>& positions) {
+    for (int i = 0; i < inorder.size(); i++) {
+        for (int j = 0; j < preorder.size(); j++) {
+            if (preorder[i] == inorder[j]) {
+                positions.push_back(make_pair(i, j));
+            }
+        }
+    }
+}
+
+template<class T>
+void printMatrix(vector<pair<int, int>>& positions, vector<T>& inorder) {
+    int size = inorder.size();
+    vector<vector<string>> matrix(size, vector<string>(size, " "));
+
+    for (const auto& pos : positions) {
+        matrix[pos.first][pos.second] = to_string(inorder[pos.second]);
+    }
+
+    for (const auto& row : matrix) {
+        for (const auto& val : row) {
+            cout << val << "\t";
+        }
+        cout << "\n";
+    }
+}
+
+
 int main() {
     srand(time(nullptr));
 
     CBinTree<int> tree;
+    CBinTree<int> tree_1;
+    tree_1.avl = true;
 
     for (int i = 0; i < 10; ++i) {
         int valor = rand() % 100;
         cout << "INSERTANDO ->" << valor << endl;
+        tree_1.insert(valor);
         tree.insert(valor);
     }
 
+    /*
     cout << "Valores del arbol binario de busqueda USANDO INORDER" << endl;
     Inorder(tree.root);
     cout << "\n";
@@ -421,7 +473,7 @@ int main() {
     cout << endl << "Valores del arbol binario de busqueda USANDO PREORDER_DS" << endl;
     Preorder_DS(tree.root);
     cout << "\n";
-
+    
     cout << endl << "Valores del arbol binario de busqueda POR NIVELES" << endl;
     Levels(tree.root);
     cout << "\n";
@@ -436,7 +488,7 @@ int main() {
     cout << "Valores del arbol Min-Heap USANDO LEVELS" << endl;
     Levels(tree.root);
     cout << "\n";
-
+    
     cout << "Convirtiendo el arbol a AVL..." << endl;
     tree.toAVL(tree.root);
 
@@ -447,6 +499,39 @@ int main() {
     cout << "Valores del arbol AVL USANDO LEVELS" << endl;
     Levels(tree.root);
     cout << "\n";
+    */
 
+    cout << endl << "Valores del arbol binario de busqueda POR NIVELES SIN AVL" << endl;
+    Levels(tree.root);
+    cout << "\n";
+
+    cout << endl << "Valores del arbol binario de busqueda POR NIVELES CON AVL" << endl;
+    Levels(tree_1.root);
+
+
+    vector<int> inorder, preorder;
+    getInorder(tree.root, inorder);
+    getPreorder(tree.root, preorder);
+
+    vector<pair<int, int>> positions;
+    calculatePositions(inorder, preorder, positions);
+
+    cout << "\nArbol (non-AVL):\n";
+    printMatrix(positions, inorder);
+
+    inorder.clear();
+    preorder.clear();
+    positions.clear();
+
+    getInorder(tree_1.root, inorder);
+    getPreorder(tree_1.root, preorder);
+    calculatePositions(inorder, preorder, positions);
+    cout << "\n";
+    cout << "\nArbol (AVL):\n";
+    printMatrix(positions, inorder);
+
+
+
+    cout << "\n";
     return 0;
 }
